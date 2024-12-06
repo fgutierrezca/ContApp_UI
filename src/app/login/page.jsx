@@ -36,16 +36,16 @@ export default function Login(){
                 throw new Error("No se encontró información del usuario");
             }
         
+            localStorage.setItem('email', email);
+
             // Si el usuario no está activo, redirigir a activarCuenta
             if (!data.userData.Active) {
-                localStorage.setItem('email', email); // Guardar email antes de redirigir
                 router.push('/activarCuenta');
                 return; // Evitar que se ejecute el resto del código
             }
         
             // Si está activo, guardar el token y redirigir
             localStorage.setItem('token', data.idToken);
-            localStorage.setItem('email', email);
             router.push('/');
         } catch (err) {
             setError(err.message || 'Error en el inicio de sesión');

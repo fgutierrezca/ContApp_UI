@@ -25,7 +25,7 @@ export default function ActivarCuenta(){
         setDisabled(true)
 
         try {
-            const data = await getCodeActivation({ code })
+            const data = await activacionCuenta(code)
 
             if (!data || Object.keys(data).length === 0) {
                 setError('Código no encontrado');
@@ -33,14 +33,7 @@ export default function ActivarCuenta(){
                 return;
             }
 
-            localStorage.setItem('email', email);
-            localStorage.setItem('code', data.Code);
-            localStorage.setItem('nombre', data.Name);
-            localStorage.setItem('expired_at', data.Expired_at);
-
-            const activate = await activacionCuenta({ email })
-
-            router.push('/')
+            router.push('/login')
         } catch (err) {
             setError(err.message || 'Error al verificar el codigo')
         }

@@ -34,7 +34,8 @@ export default function Registro() {
 
         try {
             await registerUser({ email, password, firstname, lastname });
-            router.push('/login');
+            localStorage.setItem('email', email);
+            router.push('/activarCuenta');
         } catch (err) {
             setDisabled(false)
             if (err.status === 400) {

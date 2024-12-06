@@ -1,5 +1,5 @@
-import { API_URL } from '@/app/utils/settings'
-
+import { API_URL, GRAPHQL_URL } from '@/app/utils/settings'
+import { GraphQLClient, gql } from 'graphql-request'
 
 export const registerUser = async (userData) => {
     const response = await fetch(`${API_URL}/register`, {
@@ -42,13 +42,12 @@ export const getUserData = async (token) => {
   return response.json();
 };
 
-export const getCodeActivation = async (code) => {
-  const response = await fetch(`${API_URL}/user/${localStorage.getItem('email')}/code/get`, {
+export const activacionCuenta = async (code) => {
+  const response = await fetch(`${API_URL}/user/${localStorage.getItem('email')}/code/${code}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(code)
   });
   if (!response.ok) {
     throw new Error('Error al obtener el codigo de activacion');
@@ -56,16 +55,49 @@ export const getCodeActivation = async (code) => {
   return response.json();
 };
 
-export const activacionCuenta = async (email) => {
-  const response = await fetch(`${API_URL}/user/${localStorage.getItem('email')}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(email)
+// Función para crear un nuevo cliente GraphQL con el token
+const createGraphQLClient = (token) => {
+  return new GraphQLClient(GRAPHQL_URL, {
+    headers: token ? {
+      Authorization: `Bearer ${token}`,
+    } : {},
   });
-  if (!response.ok) {
-    throw new Error('Error al activar cuenta');
+};
+
+export const getEventos = async (titulo, token) => {
+  const graphQLClient = createGraphQLClient(token);
+
+  const query = gql`
+    query{
+      eventos{
+        id
+        titulo
+        direccion
+        fecha
+        asistentes{
+          asistente{
+            id
+            nombre
+            correo
+            edad
+          }
+          valoracion{
+            descripcion
+          }
+        }
+      }
+    }
+  `;
+
+  const variables = {
+    titulo: titulo
+  };
+
+  try {
+    const data = await graphQLClient.request(query, variables);
+    return data.eventos;
+  } catch (error) {
+    console.error('Error fetching clases:', error);
+    throw new Error('Error al obtener los eventos');
   }
-  return response.json();
 };
